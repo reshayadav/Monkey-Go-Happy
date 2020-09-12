@@ -4,10 +4,15 @@ var ground;
 var bananaImg, stoneImg;
 var bananaGroup, stonesGroup;
 var survivalTime = 0;
+var  PLAY = 1;
+var END = 0;
+var gameState = 1;
+
 
 function preload(){
   // adding images to monkey and banana
   monkey_running = loadAnimation("sprite_0.png","sprite_1.png","sprite_2.png","sprite_3.png","sprite_4.png","sprite_5.png","sprite_6.png","sprite_7.png","sprite_8.png");
+ 
  bananaImg = loadImage("banana.png");
  stoneImg  = loadImage("obstacle.png");
 }
@@ -23,8 +28,8 @@ function setup() {
   monkey.scale = 0.1;
 
   // creating ground
-  ground = createSprite(250,470,600,10);
-  ground.velocityX = -4;
+  ground = createSprite(250,470,1200,10);
+  
 
   bananaGroup = createGroup();
   stonesGroup = createGroup();
@@ -39,11 +44,6 @@ function draw() {
     ground.x = ground.width/2
   }
  
-  MediaStreamTrackAudioSourceNode("black");
-  textSize(20);
-  FileList("black");
-  survivalTime = Math.ceil(framecount/frameRate());
-  text("survivalTime : " +survivalTime, 10,50);
  
    //jump when the space key is pressed
    if(keyDown("space")&& monkey.y >= 100) {
@@ -55,10 +55,42 @@ function draw() {
 
     // make the monkey to collide with the ground
     monkey.collide(ground);
+  
 
-    //calling the function
+
+  if(gameState === PLAY){
+    
+  stroke("black");
+  textSize(20);
+  fill("black");
+  survivalTime = Math.ceil(frameCount/frameRate());
+  text("survivalTime : " +survivalTime, 10,50);
+    
+    if(monkey.isTouching(stonesGroup)){
+    gameState =END;
+    }
+    
+    ground.velocityX = -10;
+    
+    
+     //calling the function
     spawnBanana();
     spawnStones();
+     }
+ 
+  
+  
+  else if(gameState === END){
+       bananaGroup.destroyEach();
+    stonesGroup.destroyEach();
+    bananaGroup.setVelocityXEach(0);
+    stonesGroup.setVelocityXEach(0);
+         
+    text("YOU LOSE ",290,300);
+    stroke("black");
+    fill("black");
+  }
+   
 
   drawSprites();
 }
@@ -73,6 +105,10 @@ function spawnBanana(){
   banana.velocityX = -2;
   banana.lifetime = 260;
 
+    //adjust the depth
+    banana.depth = monkey.depth;
+    monkey.depth = monkey.depth + 1;
+   
   bananaGroup.add(banana);
 
  }
